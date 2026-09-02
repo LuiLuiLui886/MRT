@@ -1,0 +1,626 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#063b7a" />
+  <title>MRT Link — Wireframe & Interactive Prototype</title>
+  <style>
+    :root {
+      --navy: #0a2f5d;
+      --blue: #065fc2;
+      --blue-2: #eaf3ff;
+      --red: #ed334e;
+      --green: #07885b;
+      --amber: #b96500;
+      --ink: #142033;
+      --muted: #68758a;
+      --line: #dfe6ef;
+      --paper: #ffffff;
+      --canvas: #eef3f8;
+      --shadow: 0 24px 70px rgba(8, 33, 67, .18);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { min-height: 100%; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 14% 8%, rgba(6,95,194,.13), transparent 30%),
+        radial-gradient(circle at 88% 90%, rgba(237,51,78,.08), transparent 27%),
+        var(--canvas);
+      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    button, input { font: inherit; }
+    button { color: inherit; }
+
+    .workspace {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: minmax(390px, 430px) minmax(320px, 460px);
+      justify-content: center;
+      align-items: center;
+      gap: 44px;
+      padding: 34px;
+    }
+
+    .prototype-wrap { position: relative; }
+    .mode-switch {
+      display: flex;
+      width: max-content;
+      margin: 0 auto 14px;
+      padding: 4px;
+      border: 1px solid rgba(10,47,93,.12);
+      border-radius: 999px;
+      background: rgba(255,255,255,.82);
+      box-shadow: 0 8px 24px rgba(8,33,67,.08);
+      backdrop-filter: blur(12px);
+    }
+    .mode-switch button {
+      border: 0;
+      border-radius: 999px;
+      padding: 8px 15px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-weight: 750;
+      font-size: 12px;
+    }
+    .mode-switch button.active { color: white; background: var(--navy); }
+
+    .phone {
+      position: relative;
+      width: 390px;
+      height: 844px;
+      overflow: hidden;
+      border: 10px solid #13243a;
+      border-radius: 46px;
+      background: var(--paper);
+      box-shadow: var(--shadow);
+    }
+    .notch {
+      position: absolute;
+      z-index: 20;
+      top: 8px;
+      left: 50%;
+      width: 112px;
+      height: 28px;
+      transform: translateX(-50%);
+      border-radius: 18px;
+      background: #13243a;
+      pointer-events: none;
+    }
+    .statusbar {
+      position: absolute;
+      z-index: 15;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 22px 0;
+      background: rgba(255,255,255,.94);
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .status-icons { display: flex; gap: 5px; align-items: center; }
+    .signal { display: flex; align-items: flex-end; gap: 2px; height: 11px; }
+    .signal i { width: 2px; background: currentColor; border-radius: 1px; }
+    .signal i:nth-child(1){height:4px}.signal i:nth-child(2){height:6px}.signal i:nth-child(3){height:8px}.signal i:nth-child(4){height:10px}
+    .battery { width: 19px; height: 9px; padding: 1px; border: 1.5px solid currentColor; border-radius: 3px; }
+    .battery::after { content:""; display:block; width: 75%; height:100%; border-radius:1px; background:currentColor; }
+
+    .screens { position: absolute; inset: 48px 0 74px; background: #f7f9fc; }
+    .screen {
+      position: absolute;
+      inset: 0;
+      display: none;
+      overflow: auto;
+      scrollbar-width: none;
+      background: #f7f9fc;
+      animation: enter .22s ease both;
+    }
+    .screen::-webkit-scrollbar { display:none; }
+    .screen.active { display:block; }
+    @keyframes enter { from { opacity:0; transform:translateX(8px); } to { opacity:1; transform:none; } }
+    .page-pad { padding: 18px 18px 28px; }
+
+    .brand-row, .header-row, .between, .inline { display:flex; align-items:center; }
+    .brand-row, .between { justify-content:space-between; }
+    .brand { display:flex; align-items:center; gap:9px; }
+    .brand-mark {
+      width: 34px; height: 34px; border-radius: 12px;
+      display:grid; place-items:center;
+      background: linear-gradient(145deg, var(--navy), var(--blue));
+      color:white; font-size:13px; font-weight:900; letter-spacing:-1px;
+      box-shadow: 0 7px 15px rgba(6,95,194,.22);
+    }
+    .brand strong { display:block; color:var(--navy); font-size:17px; line-height:1; }
+    .brand small { display:block; margin-top:4px; color:var(--muted); font-size:9px; letter-spacing:.11em; font-weight:800; }
+    .icon-btn {
+      width: 36px; height:36px; border:1px solid var(--line); border-radius:12px;
+      display:grid; place-items:center; background:#fff; cursor:pointer;
+    }
+    .avatar { border: 2px solid white; background:#dcecff; color:var(--navy); font-weight:850; box-shadow:0 0 0 1px var(--line); }
+    .eyebrow { margin:0 0 7px; color:var(--blue); font-size:10px; letter-spacing:.12em; font-weight:900; text-transform:uppercase; }
+    h1, h2, h3, p { margin-top:0; }
+    h1 { margin-bottom:8px; font-size:28px; line-height:1.13; letter-spacing:-.04em; color:var(--navy); }
+    h2 { margin-bottom:8px; font-size:22px; line-height:1.18; letter-spacing:-.025em; color:var(--navy); }
+    h3 { margin-bottom:7px; font-size:15px; line-height:1.25; }
+    p { color:var(--muted); font-size:13px; line-height:1.55; }
+    .greeting { padding: 28px 2px 15px; }
+    .greeting p { margin:0; }
+
+    .search-card {
+      padding: 16px;
+      border: 1px solid #dbe5f1;
+      border-radius: var(--radius);
+      background:white;
+      box-shadow:0 12px 28px rgba(20,44,79,.08);
+    }
+    .location-row { position:relative; display:grid; grid-template-columns:22px 1fr; gap:10px; align-items:center; }
+    .location-row + .location-row { margin-top:15px; }
+    .location-row + .location-row::before {
+      content:""; position:absolute; left:7px; top:-15px; width:2px; height:18px;
+      background: repeating-linear-gradient(to bottom, #a9b8cb 0 3px, transparent 3px 6px);
+    }
+    .dot { width:15px; height:15px; border-radius:50%; border:4px solid var(--blue); background:white; }
+    .dot.dest { border-radius:5px; border-color:var(--red); }
+    .field-label { display:block; color:var(--muted); font-size:9px; font-weight:750; text-transform:uppercase; letter-spacing:.08em; }
+    .field-value { display:block; margin-top:2px; color:var(--ink); font-size:13px; font-weight:800; }
+    .swap { position:absolute; right:14px; top:49px; width:30px; height:30px; border:1px solid var(--line); background:#fff; border-radius:10px; display:grid; place-items:center; color:var(--blue); font-weight:900; }
+
+    .primary, .secondary, .text-action {
+      width:100%; border:0; border-radius:15px; padding:14px 16px; cursor:pointer; font-weight:850; font-size:13px;
+      transition:transform .12s ease, box-shadow .12s ease;
+    }
+    .primary { color:white; background:linear-gradient(135deg, var(--blue), #084a9b); box-shadow:0 10px 22px rgba(6,95,194,.22); }
+    .primary:active, .secondary:active { transform:scale(.98); }
+    .secondary { color:var(--blue); background:var(--blue-2); }
+    .text-action { width:auto; padding:7px 0; color:var(--blue); background:transparent; }
+    .search-card .primary { margin-top:17px; }
+
+    .trust-row { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:14px; }
+    .trust-item { padding:11px 7px; border:1px solid var(--line); border-radius:14px; background:rgba(255,255,255,.65); text-align:center; }
+    .trust-item b { display:block; color:var(--navy); font-size:13px; }
+    .trust-item span { color:var(--muted); font-size:9px; }
+    .section-head { display:flex; justify-content:space-between; align-items:flex-end; margin:24px 1px 10px; }
+    .section-head h3 { margin:0; }
+    .section-head span { color:var(--blue); font-size:11px; font-weight:800; }
+    .insight-card { display:flex; gap:12px; padding:14px; border-radius:18px; background:var(--navy); color:white; }
+    .insight-card .mini-icon { flex:0 0 39px; height:39px; border-radius:12px; display:grid; place-items:center; background:rgba(255,255,255,.12); font-size:18px; }
+    .insight-card h3 { margin:0 0 4px; color:white; }
+    .insight-card p { margin:0; color:#d6e6f8; font-size:11px; }
+
+    .topbar { position:sticky; z-index:5; top:0; padding:15px 18px 12px; display:grid; grid-template-columns:36px 1fr 36px; align-items:center; gap:10px; background:rgba(247,249,252,.94); backdrop-filter:blur(14px); }
+    .topbar h2 { margin:0; text-align:center; font-size:16px; letter-spacing:-.01em; }
+    .back { border:0; background:#fff; border-radius:12px; width:36px; height:36px; border:1px solid var(--line); cursor:pointer; font-size:18px; }
+    .route-mini { margin:0 18px 14px; display:flex; align-items:center; gap:8px; color:var(--muted); font-size:11px; font-weight:750; }
+    .route-mini b { color:var(--ink); }
+    .route-mini .route-line { flex:1; height:1px; background:var(--line); position:relative; }
+    .route-mini .route-line::before, .route-mini .route-line::after { content:""; position:absolute; top:-3px; width:7px; height:7px; border-radius:50%; background:var(--blue); }
+    .route-mini .route-line::after { right:0; background:var(--red); }
+
+    .notice { display:flex; gap:10px; align-items:flex-start; margin-bottom:12px; padding:11px 12px; border-radius:14px; background:#fff7e8; color:#7c4a00; border:1px solid #f7dfb1; font-size:10px; line-height:1.4; }
+    .notice strong { display:block; font-size:11px; }
+    .choice-card { position:relative; margin-bottom:12px; padding:16px; border:1px solid var(--line); border-radius:20px; background:#fff; }
+    .choice-card.recommended { border:2px solid var(--blue); box-shadow:0 12px 28px rgba(6,95,194,.10); }
+    .ribbon { position:absolute; right:14px; top:-10px; padding:5px 9px; border-radius:999px; color:white; background:var(--blue); font-size:9px; font-weight:900; letter-spacing:.04em; }
+    .choice-title { display:flex; align-items:center; gap:10px; margin-bottom:13px; }
+    .transport-icon { width:40px; height:40px; display:grid; place-items:center; border-radius:13px; background:#f0f3f7; font-size:20px; }
+    .recommended .transport-icon { color:var(--blue); background:var(--blue-2); }
+    .choice-title h3 { margin:0 0 2px; }
+    .choice-title p { margin:0; font-size:10px; }
+    .metrics { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+    .metric { padding:10px 7px; border-radius:12px; background:#f7f9fc; }
+    .metric span { display:block; color:var(--muted); font-size:8px; text-transform:uppercase; letter-spacing:.06em; font-weight:700; }
+    .metric b { display:block; margin-top:3px; color:var(--ink); font-size:12px; }
+    .metric b.good { color:var(--green); }
+    .benefit { display:flex; align-items:center; gap:7px; margin:12px 0; color:var(--green); font-size:10px; font-weight:800; }
+    .choice-card .primary { margin-top:14px; }
+    .smallprint { margin:11px 4px 0; color:#8691a2; text-align:center; font-size:9px; line-height:1.45; }
+
+    .summary-hero { margin:0 18px 14px; padding:17px; color:white; border-radius:20px; background:linear-gradient(140deg, #082f62, #0758ad); }
+    .summary-hero p { margin:0 0 12px; color:#cee2fb; font-size:10px; }
+    .summary-metrics { display:flex; gap:20px; }
+    .summary-metrics span { display:block; color:#b9d5f6; font-size:8px; text-transform:uppercase; letter-spacing:.06em; }
+    .summary-metrics b { display:block; margin-top:3px; color:white; font-size:15px; }
+    .timeline { position:relative; margin:0 18px; padding:17px 15px; border:1px solid var(--line); border-radius:20px; background:#fff; }
+    .leg { position:relative; display:grid; grid-template-columns:49px 28px 1fr; min-height:74px; }
+    .leg:last-child { min-height:52px; }
+    .leg-time { padding-top:2px; color:var(--navy); font-size:11px; font-weight:850; }
+    .leg-rail { position:relative; display:flex; justify-content:center; }
+    .leg-rail::after { content:""; position:absolute; top:14px; bottom:-2px; width:2px; background:#c9d7e7; }
+    .leg:last-child .leg-rail::after { display:none; }
+    .leg-dot { position:relative; z-index:2; width:13px; height:13px; margin-top:3px; border-radius:50%; background:white; border:4px solid var(--blue); }
+    .leg:nth-child(3) .leg-dot { border-color:var(--red); }
+    .leg-copy h3 { margin:0 0 3px; font-size:12px; }
+    .leg-copy p { margin:0; font-size:10px; }
+    .tag { display:inline-flex; align-items:center; margin-top:7px; padding:4px 7px; border-radius:999px; background:#f1f5f9; color:#536177; font-size:8px; font-weight:800; }
+    .fare-card { margin:12px 18px; padding:15px; border:1px solid var(--line); border-radius:18px; background:#fff; }
+    .fare-row { display:flex; justify-content:space-between; margin-bottom:8px; color:var(--muted); font-size:10px; }
+    .fare-row b { color:var(--ink); }
+    .fare-row.total { margin:11px 0 0; padding-top:11px; border-top:1px dashed var(--line); color:var(--ink); font-size:12px; }
+    .sticky-cta { position:sticky; bottom:0; padding:12px 18px 18px; background:linear-gradient(to bottom, transparent, #f7f9fc 22%); }
+
+    .live-head { margin:0 18px 12px; }
+    .live-head .live-pill { display:inline-flex; align-items:center; gap:6px; padding:5px 9px; border-radius:999px; background:#e8f8f1; color:var(--green); font-size:9px; font-weight:900; }
+    .pulse { width:6px; height:6px; border-radius:50%; background:var(--green); box-shadow:0 0 0 4px rgba(7,136,91,.12); }
+    .live-head h1 { margin:11px 0 3px; font-size:24px; }
+    .live-head p { margin:0; }
+    .progress-card { margin:0 18px 12px; padding:17px; border:1px solid var(--line); border-radius:20px; background:#fff; }
+    .progress-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; }
+    .progress-top b { font-size:12px; }
+    .progress-top span { color:var(--muted); font-size:10px; }
+    .progress-line { position:relative; height:6px; margin:13px 4px 20px; border-radius:6px; background:#e5ebf3; }
+    .progress-line .fill { position:absolute; inset:0 auto 0 0; width:38%; border-radius:6px; background:var(--blue); transition:width .4s ease; }
+    .progress-line i { position:absolute; top:50%; width:14px; height:14px; transform:translate(-50%,-50%); border:3px solid white; border-radius:50%; background:#c5d1df; box-shadow:0 0 0 1px #c5d1df; }
+    .progress-line i:nth-of-type(1){left:0;background:var(--blue)} .progress-line i:nth-of-type(2){left:42%} .progress-line i:nth-of-type(3){left:76%} .progress-line i:nth-of-type(4){left:100%}
+    .progress-labels { display:flex; justify-content:space-between; color:var(--muted); font-size:8px; }
+    .alert-card { margin:0 18px 12px; overflow:hidden; border:1px solid #f1c9ac; border-radius:20px; background:#fff; box-shadow:0 12px 24px rgba(153,75,8,.08); }
+    .alert-title { display:flex; gap:11px; padding:14px 15px; background:#fff4e9; }
+    .alert-icon { flex:0 0 34px; height:34px; display:grid; place-items:center; border-radius:11px; background:#ffe1c3; }
+    .alert-title h3 { margin:0 0 3px; color:#7d3e00; }
+    .alert-title p { margin:0; color:#92602f; font-size:10px; }
+    .replan { padding:14px 15px; }
+    .replan .between { margin-bottom:10px; }
+    .replan span { color:var(--muted); font-size:10px; }
+    .replan b { font-size:11px; }
+    .delta { color:var(--amber) !important; }
+    .replan .primary { margin-top:4px; }
+    .assist-note { margin:0 18px 20px; display:flex; gap:9px; align-items:flex-start; padding:12px; border-radius:15px; background:var(--blue-2); color:#335779; font-size:9px; line-height:1.45; }
+
+    .record-hero { margin:0 18px 12px; padding:20px; border-radius:22px; color:white; background:linear-gradient(145deg, #087c59, #075540); }
+    .record-hero .check { width:42px; height:42px; margin-bottom:15px; display:grid; place-items:center; border-radius:50%; background:rgba(255,255,255,.17); font-size:22px; }
+    .record-hero h2 { margin:0 0 5px; color:white; }
+    .record-hero p { margin:0; color:#c8eee0; }
+    .impact-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:0 18px 12px; }
+    .impact { padding:13px 8px; border:1px solid var(--line); border-radius:16px; background:#fff; text-align:center; }
+    .impact span { display:block; color:var(--muted); font-size:8px; }
+    .impact b { display:block; margin:4px 0 2px; color:var(--navy); font-size:14px; }
+    .impact em { color:var(--green); font-style:normal; font-size:8px; font-weight:800; }
+    .record-card { margin:0 18px 12px; padding:15px; border:1px solid var(--line); border-radius:18px; background:#fff; }
+    .record-card h3 { margin-bottom:12px; }
+    .record-step { display:grid; grid-template-columns:24px 1fr auto; gap:8px; padding:9px 0; border-top:1px solid #eef2f6; align-items:center; }
+    .record-step:first-of-type { border-top:0; }
+    .record-step .step-icon { width:24px; height:24px; display:grid; place-items:center; border-radius:8px; background:#edf4fc; font-size:11px; }
+    .record-step b { display:block; font-size:10px; }
+    .record-step span { color:var(--muted); font-size:9px; }
+    .record-step > b:last-child { color:var(--green); }
+
+    .bottom-nav { position:absolute; z-index:12; left:0; right:0; bottom:0; height:74px; display:grid; grid-template-columns:repeat(3,1fr); padding:8px 20px 10px; border-top:1px solid #e4eaf2; background:rgba(255,255,255,.97); }
+    .nav-item { border:0; background:transparent; color:#8a96a7; cursor:pointer; font-size:9px; font-weight:750; }
+    .nav-item .nav-icon { display:block; margin:0 auto 4px; font-size:18px; line-height:1; }
+    .nav-item.active { color:var(--blue); }
+
+    .sheet-backdrop { position:absolute; z-index:30; inset:0; display:none; align-items:flex-end; background:rgba(4,20,40,.45); backdrop-filter:blur(2px); }
+    .sheet-backdrop.open { display:flex; }
+    .sheet { width:100%; padding:9px 20px 22px; border-radius:26px 26px 0 0; background:white; animation:sheetUp .25s ease both; }
+    @keyframes sheetUp { from{transform:translateY(100%)}to{transform:none} }
+    .handle { width:45px; height:4px; margin:0 auto 18px; border-radius:4px; background:#d8e0ea; }
+    .sheet .success-icon { width:52px; height:52px; display:grid; place-items:center; margin-bottom:14px; border-radius:17px; color:var(--green); background:#e6f6ef; font-size:26px; }
+    .sheet h2 { margin-bottom:6px; }
+    .sheet p { margin-bottom:16px; }
+    .sheet-summary { margin-bottom:16px; padding:13px; border-radius:14px; background:#f5f8fb; }
+    .sheet-summary div { display:flex; justify-content:space-between; padding:4px 0; font-size:10px; }
+    .sheet-summary span { color:var(--muted); }
+    .sheet .secondary { margin-top:8px; }
+    .toast { position:absolute; z-index:45; left:18px; right:18px; bottom:88px; display:none; padding:12px 14px; border-radius:13px; color:white; background:#17263b; box-shadow:0 10px 30px rgba(0,0,0,.2); font-size:10px; line-height:1.4; }
+    .toast.show { display:block; animation:toastIn .25s ease both; }
+    @keyframes toastIn { from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none} }
+
+    .story-panel { align-self:center; }
+    .story-kicker { display:inline-flex; align-items:center; gap:8px; padding:7px 11px; border-radius:999px; background:rgba(255,255,255,.8); color:var(--blue); font-size:10px; font-weight:900; letter-spacing:.08em; text-transform:uppercase; }
+    .story-kicker::before { content:""; width:7px; height:7px; border-radius:50%; background:var(--red); }
+    .story-panel h1 { max-width:430px; margin:18px 0 12px; font-size:42px; line-height:1.08; }
+    .story-panel > p { max-width:430px; font-size:14px; }
+    .story-progress { display:flex; gap:7px; margin:24px 0 17px; }
+    .story-progress button { width:38px; height:5px; padding:0; border:0; border-radius:5px; background:#c8d3df; cursor:pointer; transition:.2s ease; }
+    .story-progress button.active { width:62px; background:var(--blue); }
+    .story-card { min-height:210px; padding:22px; border:1px solid rgba(10,47,93,.12); border-radius:24px; background:rgba(255,255,255,.80); box-shadow:0 16px 42px rgba(8,33,67,.09); backdrop-filter:blur(14px); }
+    .story-number { color:var(--blue); font-size:11px; font-weight:900; letter-spacing:.12em; text-transform:uppercase; }
+    .story-card h2 { margin:10px 0 9px; }
+    .story-card p { min-height:60px; margin-bottom:15px; }
+    .business-chip { display:inline-flex; align-items:center; gap:7px; padding:7px 10px; border-radius:10px; color:#075d42; background:#e2f5ed; font-size:10px; font-weight:850; }
+    .story-controls { display:flex; gap:9px; margin-top:12px; }
+    .story-controls button { width:auto; min-width:112px; }
+    .keyboard-note { margin-top:13px; color:#7b8798; font-size:9px; }
+
+    body.wireframe { --ink:#151515; --muted:#666; --line:#9b9b9b; --paper:#fff; --canvas:#e9e9e9; --navy:#272727; --blue:#4c4c4c; --blue-2:#eee; --red:#4c4c4c; --green:#333; --amber:#555; }
+    body.wireframe .phone, body.wireframe .story-card { box-shadow:none; }
+    body.wireframe .brand-mark, body.wireframe .primary, body.wireframe .summary-hero, body.wireframe .record-hero, body.wireframe .insight-card { background:#333; box-shadow:none; }
+    body.wireframe .choice-card.recommended { border-color:#222; box-shadow:none; }
+    body.wireframe .ribbon { background:#333; }
+    body.wireframe .screen, body.wireframe .screens { background:#f3f3f3; }
+    body.wireframe .transport-icon, body.wireframe .metric, body.wireframe .impact, body.wireframe .search-card, body.wireframe .timeline, body.wireframe .fare-card, body.wireframe .progress-card, body.wireframe .record-card { border-color:#999; box-shadow:none; }
+    body.wireframe .story-kicker::before { background:#555; }
+
+    @media (max-width: 900px) {
+      body { background:#fff; }
+      .workspace { display:block; min-height:auto; padding:0; }
+      .mode-switch { position:relative; z-index:60; top:auto; left:auto; transform:none; margin:8px auto; }
+      .phone { width:100%; height:calc(100vh - 52px); min-height:648px; border:0; border-radius:0; box-shadow:none; }
+      .notch { display:none; }
+      .story-panel { display:none; }
+    }
+    @media (max-height: 880px) and (min-width:901px) {
+      .workspace { align-items:start; }
+      .phone { transform:scale(.88); transform-origin:top center; margin-bottom:-100px; }
+      .mode-switch { margin-bottom:10px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="workspace">
+    <section class="prototype-wrap" aria-label="Prototype aplikasi MRT Link">
+      <div class="mode-switch" aria-label="Pilih tingkat fidelitas desain">
+        <button class="active" data-mode="prototype">Prototype</button>
+        <button data-mode="wireframe">Wireframe</button>
+      </div>
+
+      <div class="phone">
+        <div class="notch"></div>
+        <div class="statusbar"><span>09:41</span><span class="status-icons"><span class="signal"><i></i><i></i><i></i><i></i></span><span>▰</span><span class="battery"></span></span></div>
+
+        <div class="screens">
+          <section class="screen active" data-screen="home">
+            <div class="page-pad">
+              <div class="brand-row">
+                <div class="brand"><div class="brand-mark">ML</div><div><strong>MRT Link</strong><small>KONSEP MODUL MYMRTJ</small></div></div>
+                <button class="icon-btn avatar" aria-label="Profil">RA</button>
+              </div>
+
+              <div class="greeting">
+                <p class="eyebrow">Selamat pagi, Raka</p>
+                <h1>Mau berangkat<br />ke mana hari ini?</h1>
+                <p>Temukan perjalanan paling masuk akal dari pintu ke pintu.</p>
+              </div>
+
+              <div class="search-card">
+                <div class="location-row"><span class="dot"></span><div><span class="field-label">Dari</span><span class="field-value">Rumah · Cinere</span></div></div>
+                <div class="location-row"><span class="dot dest"></span><div><span class="field-label">Ke</span><span class="field-value">Kantor · Dukuh Atas</span></div></div>
+                <button class="swap" aria-label="Tukar lokasi">⇅</button>
+                <button class="primary" data-go="compare">Bandingkan perjalanan</button>
+              </div>
+
+              <div class="trust-row">
+                <div class="trust-item"><b>1 alur</b><span>Feeder + MRT</span></div>
+                <div class="trust-item"><b>Real-time</b><span>Connection Assist</span></div>
+                <div class="trust-item"><b>Door-to-door</b><span>ETA & estimasi biaya</span></div>
+              </div>
+
+              <div class="section-head"><h3>Kenapa MRT Link?</h3><span>Lihat cara kerja</span></div>
+              <div class="insight-card">
+                <div class="mini-icon">↗</div>
+                <div><h3>Bukan sekadar pencari rute</h3><p>Bandingkan kendaraan pribadi dengan MRT, lalu jaga setiap koneksi multimoda tetap optimal.</p></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="screen" data-screen="compare">
+            <div class="topbar"><button class="back" data-go="home" aria-label="Kembali">‹</button><h2>Bandingkan perjalanan</h2><span></span></div>
+            <div class="route-mini"><b>Cinere</b><span class="route-line"></span><b>Dukuh Atas</b></div>
+            <div class="page-pad" style="padding-top:0">
+              <div class="notice"><span>ⓘ</span><div><strong>Simulasi konsep</strong>Waktu, biaya, dan emisi berikut adalah data ilustratif untuk mendemonstrasikan pengalaman pengguna.</div></div>
+
+              <article class="choice-card">
+                <div class="choice-title"><div class="transport-icon">🏍</div><div><h3>Motor pribadi</h3><p>Via Jl. Pangeran Antasari</p></div></div>
+                <div class="metrics">
+                  <div class="metric"><span>Waktu</span><b>52 menit</b></div>
+                  <div class="metric"><span>Biaya</span><b>Rp25.000</b></div>
+                  <div class="metric"><span>CO₂</span><b>1,9 kg</b></div>
+                </div>
+                <div class="benefit" style="color:#7b8798">◷ Waktu dapat berubah mengikuti kemacetan</div>
+                <button class="secondary" data-toast="Prototype difokuskan pada journey konversi ke MRT.">Tetap pilih motor</button>
+              </article>
+
+              <article class="choice-card recommended">
+                <span class="ribbon">DIREKOMENDASIKAN</span>
+                <div class="choice-title"><div class="transport-icon">🚇</div><div><h3>Feeder + MRT</h3><p>Mitra feeder → MRT → Jalan kaki</p></div></div>
+                <div class="metrics">
+                  <div class="metric"><span>Waktu</span><b>58 menit</b></div>
+                  <div class="metric"><span>Biaya</span><b class="good">Rp17.500</b></div>
+                  <div class="metric"><span>CO₂</span><b class="good">0,4 kg</b></div>
+                </div>
+                <div class="benefit">✓ Potensi hemat Rp7.500 · lebih rendah emisi</div>
+                <button class="primary" data-go="plan">Pilih MRT Journey</button>
+              </article>
+              <p class="smallprint">MRT Conversion membantu pengguna mengambil keputusan, bukan hanya menampilkan rute.</p>
+            </div>
+          </section>
+
+          <section class="screen" data-screen="plan">
+            <div class="topbar"><button class="back" data-go="compare" aria-label="Kembali">‹</button><h2>Detail perjalanan</h2><button class="icon-btn" data-toast="Perjalanan disimpan untuk nanti." aria-label="Simpan">♡</button></div>
+            <div class="summary-hero">
+              <p>Berangkat 07:05 · tiba 08:15</p>
+              <div class="summary-metrics"><div><span>Total waktu</span><b>1j 10m</b></div><div><span>Estimasi</span><b>Rp17.500</b></div><div><span>Transit</span><b>2×</b></div></div>
+            </div>
+            <div class="timeline">
+              <div class="leg"><div class="leg-time">07:05</div><div class="leg-rail"><i class="leg-dot"></i></div><div class="leg-copy"><h3>Feeder menjemput di rumah</h3><p>Mitra feeder · B 4632 KZU</p><span class="tag">12 menit · Rp8.500</span></div></div>
+              <div class="leg"><div class="leg-time">07:22</div><div class="leg-rail"><i class="leg-dot"></i></div><div class="leg-copy"><h3>MRT Lebak Bulus</h3><p>Masuk melalui Gate A</p><span class="tag">Transfer 5 menit</span></div></div>
+              <div class="leg"><div class="leg-time">07:27</div><div class="leg-rail"><i class="leg-dot"></i></div><div class="leg-copy"><h3>MRT menuju Bundaran HI</h3><p>Turun di Dukuh Atas</p><span class="tag">36 menit · Rp9.000</span></div></div>
+              <div class="leg"><div class="leg-time">08:03</div><div class="leg-rail"><i class="leg-dot"></i></div><div class="leg-copy"><h3>Jalan kaki ke kantor</h3><p>Keluar melalui Gate C</p><span class="tag">12 menit · 850 m</span></div></div>
+            </div>
+            <div class="fare-card">
+              <div class="fare-row"><span>Feeder partner</span><b>Rp8.500</b></div>
+              <div class="fare-row"><span>Tiket MRT</span><b>Rp9.000</b></div>
+              <div class="fare-row total"><strong>Total estimasi</strong><strong>Rp17.500</strong></div>
+            </div>
+            <div class="sticky-cta"><button class="primary" data-sheet="booking">Book Journey · Rp17.500</button></div>
+          </section>
+
+          <section class="screen" data-screen="live">
+            <div class="topbar"><button class="back" data-go="plan" aria-label="Kembali">‹</button><h2>Perjalanan aktif</h2><button class="icon-btn" data-toast="Bantuan perjalanan siap dihubungi." aria-label="Bantuan">?</button></div>
+            <div class="live-head"><span class="live-pill"><i class="pulse"></i> LIVE JOURNEY</span><h1>Menuju Lebak Bulus</h1><p>Feeder partner · estimasi tiba 07:25</p></div>
+            <div class="progress-card">
+              <div class="progress-top"><b>38% perjalanan</b><span>52 menit tersisa</span></div>
+              <div class="progress-line"><span class="fill"></span><i></i><i></i><i></i><i></i></div>
+              <div class="progress-labels"><span>Pickup</span><span>Lebak Bulus</span><span>Dukuh Atas</span><span>Kantor</span></div>
+            </div>
+            <article class="alert-card" id="assist-card">
+              <div class="alert-title"><div class="alert-icon">⚠</div><div><h3>Koneksi 07:27 berisiko terlewat</h3><p>Feeder terlambat ±3 menit akibat kepadatan lalu lintas.</p></div></div>
+              <div class="replan">
+                <div class="between"><span>MRT alternatif</span><b>07:35 · Lebak Bulus</b></div>
+                <div class="between"><span>ETA tujuan baru</span><b class="delta">08:18 · +3 menit</b></div>
+                <div class="between"><span>Biaya tambahan</span><b>Rp0</b></div>
+                <button class="primary" id="accept-replan">Gunakan rencana baru</button>
+              </div>
+            </article>
+            <div class="assist-note"><span>✦</span><span><b>Connection Assist</b> terus memantau posisi feeder dan jadwal MRT untuk menjaga perjalananmu tetap tersambung.</span></div>
+            <div style="padding:0 18px 20px"><button class="secondary" data-go="record">Lewati ke ringkasan perjalanan</button></div>
+          </section>
+
+          <section class="screen" data-screen="record">
+            <div class="topbar"><button class="back" data-go="home" aria-label="Kembali">‹</button><h2>Journey Record</h2><button class="icon-btn" data-toast="Ringkasan perjalanan siap dibagikan." aria-label="Bagikan">↗</button></div>
+            <div class="record-hero"><div class="check">✓</div><h2>Perjalanan selesai</h2><p>Cinere → Dukuh Atas · Rabu, 2 Sep</p></div>
+            <div class="impact-grid">
+              <div class="impact"><span>Durasi</span><b>1j 13m</b><em>ETA +3m</em></div>
+              <div class="impact"><span>Total</span><b>Rp17.500</b><em>hemat Rp7.500</em></div>
+              <div class="impact"><span>CO₂</span><b>0,4 kg</b><em>↓ 1,5 kg</em></div>
+            </div>
+            <div class="record-card">
+              <h3>Detail perjalanan</h3>
+              <div class="record-step"><span class="step-icon">🏍</span><div><b>Feeder ke Lebak Bulus</b><span>07:05–07:25</span></div><b>Selesai</b></div>
+              <div class="record-step"><span class="step-icon">🚇</span><div><b>MRT ke Dukuh Atas</b><span>07:35–08:06</span></div><b>Selesai</b></div>
+              <div class="record-step"><span class="step-icon">↗</span><div><b>Jalan kaki ke kantor</b><span>08:06–08:18</span></div><b>Selesai</b></div>
+            </div>
+            <div class="record-card">
+              <div class="between"><div><h3 style="margin-bottom:3px">Dampak perjalananmu</h3><p style="margin:0;font-size:10px">Perbandingan terhadap simulasi motor pribadi.</p></div><span style="font-size:28px">🌿</span></div>
+            </div>
+            <div style="padding:2px 18px 24px"><button class="primary" data-go="home">Rencanakan perjalanan lain</button></div>
+          </section>
+        </div>
+
+        <nav class="bottom-nav" aria-label="Navigasi utama">
+          <button class="nav-item active" data-go="home"><span class="nav-icon">⌂</span>Beranda</button>
+          <button class="nav-item" data-go="live"><span class="nav-icon">⌁</span>Perjalanan</button>
+          <button class="nav-item" data-go="record"><span class="nav-icon">▤</span>Riwayat</button>
+        </nav>
+
+        <div class="sheet-backdrop" id="booking-sheet">
+          <div class="sheet">
+            <div class="handle"></div>
+            <div class="success-icon">✓</div>
+            <h2>Journey berhasil disiapkan</h2>
+            <p>Feeder dan tiket MRT kini berada dalam satu perjalanan terintegrasi.</p>
+            <div class="sheet-summary"><div><span>Berangkat</span><b>07:05</b></div><div><span>Tiba</span><b>08:15</b></div><div><span>Total</span><b>Rp17.500</b></div></div>
+            <button class="primary" id="start-demo">Lihat demo perjalanan aktif</button>
+            <button class="secondary" id="close-sheet">Kembali ke detail</button>
+          </div>
+        </div>
+        <div class="toast" id="toast"></div>
+      </div>
+    </section>
+
+    <aside class="story-panel">
+      <span class="story-kicker">Competition concept prototype</span>
+      <h1>Satu journey untuk mengubah pilihan perjalanan.</h1>
+      <p>MRT Link dirancang sebagai conversion layer sebelum perjalanan dan connection layer saat perjalanan—dua momen yang langsung mendukung potensi ridership.</p>
+      <div class="story-progress" id="story-progress"></div>
+      <div class="story-card">
+        <span class="story-number" id="story-number">01 · Entry point</span>
+        <h2 id="story-title">Door-to-door, bukan station-to-station</h2>
+        <p id="story-copy">Pengguna memulai dari kebutuhan nyata: Rumah ke Kantor. MRT menjadi tulang punggung perjalanan tanpa memaksa pengguna menyusun moda satu per satu.</p>
+        <span class="business-chip" id="story-chip">Digital ecosystem · unified journey</span>
+      </div>
+      <div class="story-controls"><button class="secondary" id="prev-story">← Sebelumnya</button><button class="primary" id="next-story">Berikutnya →</button></div>
+      <div class="keyboard-note">Tip: gunakan tombol ← → untuk mempresentasikan alur kepada juri.</div>
+    </aside>
+  </main>
+
+  <script>
+    (function () {
+      var order = ['home', 'compare', 'plan', 'live', 'record'];
+      var stories = {
+        home: { number:'01 · Entry point', title:'Door-to-door, bukan station-to-station', copy:'Pengguna memulai dari kebutuhan nyata: Rumah ke Kantor. MRT menjadi tulang punggung perjalanan tanpa memaksa pengguna menyusun moda satu per satu.', chip:'Digital ecosystem · unified journey' },
+        compare: { number:'02 · Novelty 1', title:'MRT Conversion', copy:'Perbandingan waktu, biaya, dan emisi memberi alasan konkret bagi pengguna kendaraan pribadi untuk memilih feeder + MRT.', chip:'Farebox · potential new rider' },
+        plan: { number:'03 · Integrated journey', title:'Satu rencana, lintas moda', copy:'Feeder, MRT, transfer, biaya, dan ETA tampil sebagai satu itinerary yang mudah dipahami dan siap dipesan.', chip:'Customer experience · partner layer' },
+        live: { number:'04 · Novelty 2', title:'Connection Assist', copy:'Ketika feeder terlambat, sistem mendeteksi risiko koneksi, merekomendasikan jadwal berikutnya, dan memperbarui ETA.', chip:'Journey reliability · retention' },
+        record: { number:'05 · Business impact', title:'Journey Record yang terukur', copy:'Riwayat memperlihatkan penyelesaian journey, penghematan, dan dampak rendah emisi; data agregatnya dapat mendukung evaluasi layanan.', chip:'Ridership insight · privacy compliant' }
+      };
+      var current = 'home';
+      var toastTimer;
+      var progress = document.getElementById('story-progress');
+
+      order.forEach(function (name, index) {
+        var button = document.createElement('button');
+        button.setAttribute('aria-label', 'Buka langkah ' + (index + 1));
+        button.addEventListener('click', function () { go(name); });
+        progress.appendChild(button);
+      });
+
+      function go(name) {
+        if (!stories[name]) return;
+        current = name;
+        document.querySelectorAll('.screen').forEach(function (screen) { screen.classList.toggle('active', screen.dataset.screen === name); });
+        document.querySelectorAll('.nav-item').forEach(function (item) {
+          var target = item.dataset.go;
+          var active = (name === 'home' && target === 'home') || (name === 'live' && target === 'live') || (name === 'record' && target === 'record');
+          item.classList.toggle('active', active);
+        });
+        Array.from(progress.children).forEach(function (item, index) { item.classList.toggle('active', order[index] === name); });
+        var story = stories[name];
+        document.getElementById('story-number').textContent = story.number;
+        document.getElementById('story-title').textContent = story.title;
+        document.getElementById('story-copy').textContent = story.copy;
+        document.getElementById('story-chip').textContent = story.chip;
+      }
+
+      document.addEventListener('click', function (event) {
+        var goButton = event.target.closest('[data-go]');
+        if (goButton) go(goButton.dataset.go);
+        var toastButton = event.target.closest('[data-toast]');
+        if (toastButton) showToast(toastButton.dataset.toast);
+        var sheetButton = event.target.closest('[data-sheet]');
+        if (sheetButton) document.getElementById('booking-sheet').classList.add('open');
+      });
+
+      function showToast(message) {
+        var toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.classList.add('show');
+        window.clearTimeout(toastTimer);
+        toastTimer = window.setTimeout(function () { toast.classList.remove('show'); }, 2600);
+      }
+
+      document.getElementById('close-sheet').addEventListener('click', function () { document.getElementById('booking-sheet').classList.remove('open'); });
+      document.getElementById('start-demo').addEventListener('click', function () { document.getElementById('booking-sheet').classList.remove('open'); go('live'); });
+      document.getElementById('booking-sheet').addEventListener('click', function (event) { if (event.target.id === 'booking-sheet') event.currentTarget.classList.remove('open'); });
+      document.getElementById('accept-replan').addEventListener('click', function () {
+        var card = document.getElementById('assist-card');
+        card.innerHTML = '<div class="alert-title" style="background:#e9f8f2"><div class="alert-icon" style="background:#d3f0e4">✓</div><div><h3 style="color:#076647">Rencana perjalanan diperbarui</h3><p style="color:#417564">MRT 07:35 dipilih · ETA tujuan 08:18.</p></div></div>';
+        document.querySelector('.progress-line .fill').style.width = '42%';
+        showToast('Connection Assist aktif. Kami akan memantau koneksi berikutnya.');
+      });
+
+      document.querySelectorAll('[data-mode]').forEach(function (button) {
+        button.addEventListener('click', function () {
+          var isWireframe = button.dataset.mode === 'wireframe';
+          document.body.classList.toggle('wireframe', isWireframe);
+          document.querySelectorAll('[data-mode]').forEach(function (item) { item.classList.toggle('active', item === button); });
+        });
+      });
+
+      function move(delta) {
+        var index = Math.max(0, Math.min(order.length - 1, order.indexOf(current) + delta));
+        go(order[index]);
+      }
+      document.getElementById('prev-story').addEventListener('click', function () { move(-1); });
+      document.getElementById('next-story').addEventListener('click', function () { move(1); });
+      document.addEventListener('keydown', function (event) { if (event.key === 'ArrowLeft') move(-1); if (event.key === 'ArrowRight') move(1); });
+      var params = new URLSearchParams(window.location.search);
+      var initialScreen = params.get('screen');
+      var initialMode = params.get('mode');
+      if (initialMode === 'wireframe') {
+        document.body.classList.add('wireframe');
+        document.querySelectorAll('[data-mode]').forEach(function (item) { item.classList.toggle('active', item.dataset.mode === 'wireframe'); });
+      }
+      go(stories[initialScreen] ? initialScreen : 'home');
+    }());
+  </script>
+</body>
+</html>

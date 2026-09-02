@@ -1,0 +1,9 @@
+# Local rendering and temporary files
+work/
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
